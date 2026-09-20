@@ -1,1 +1,29 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
 
+# Jupyter
+.ipynb_checkpoints/
+
+# Environment / secrets
+.env
+.env.*
+*.key
+*.pem
+secrets.json
+
+# API keys
+*api_key*
+*API_KEY*
+
+# Local data / generated files
+*.csv
+*.pkl
+*.pickle
+*.pt
+*.bin
+
+# OS
+.DS_Store
+Thumbs.db
