@@ -176,17 +176,59 @@ Human and LLM-judge overall scores had a Spearman correlation of **0.465** (`p =
 
 ## Key Failure Modes
 
-After refining the training-label rules, the main remaining classification errors were concentrated around ambiguous intent boundaries.
+After refining the training-label rules, the remaining classification errors were concentrated around ambiguous intent boundaries.
 
-The most frequent error patterns included:
+### 1. `keyboard_input → other_unclear`
 
-1. `keyboard_input → other_unclear`
-2. `other_unclear → ios_update`
-3. `hardware_accessories → other_unclear`
-4. `itunes_media → app_store_purchases`
-5. `app_issues → other_unclear`
+**Real example:**  
+> "Seriously @AppleSupport do something bout these ugly ass question marks before I take my ass back to android..."
 
-These errors suggest that some support intents have overlapping language, while `other_unclear` continues to absorb messages that are vague, multi-issue, or difficult to assign to a single coherent intent.
+**Hypothesis:**  
+The message refers to the keyboard/input bug indirectly and contains noisy language and unusual Unicode characters. This can make the semantic representation less specific and cause the classifier to fall back to `other_unclear`.
+
+---
+
+### 2. `other_unclear → ios_update`
+
+**Real example:**  
+> "@AppleSupport @115858"
+
+**Hypothesis:**  
+Very short or context-dependent messages contain too little information for reliable intent classification. Because many AppleSupport conversations in the dataset are related to software updates, the classifier can incorrectly assign these vague messages to `ios_update`.
+
+---
+
+### 3. `hardware_accessories → other_unclear`
+
+**Real example:**  
+> "poor support from @AppleSupport today trying to get my AirPods fixed 👎"
+
+**Hypothesis:**  
+Hardware and accessory-related issues are expressed using broad support language rather than specific hardware terminology. Short complaints such as this can therefore be absorbed by the broad `other_unclear` category.
+
+---
+
+### 4. `itunes_media → app_store_purchases`
+
+**Real example:**  
+> "@AppleSupport where do i find boost code from taylors album that i purchased from itunes?"
+
+**Hypothesis:**  
+iTunes/media purchases and App Store purchases share vocabulary such as "purchased", "download", and "account". Without stronger media-specific cues, the classifier can confuse the two categories.
+
+---
+
+### 5. `app_issues → other_unclear`
+
+**Real example:**  
+> "Y’all better fix both of my phones I’m tired of my fucking apps crashing fix that shit"
+
+**Hypothesis:**  
+Although the message explicitly mentions crashing apps, it contains multiple devices and highly informal language. The classifier may therefore represent it as a general device complaint rather than a specific third-party application issue.
+
+---
+
+These failure modes show that the remaining errors are primarily caused by short, noisy, ambiguous, or overlapping customer messages. In particular, `other_unclear` acts as a broad fallback category and absorbs several difficult examples.
 
 ---
 
@@ -268,6 +310,28 @@ The main implementation is contained in:
 
 The notebook contains the complete workflow from dataset preparation through evaluation.
 
+### Reproducing the Headline Results
+
+The headline classification results can be reproduced in **under 15 minutes** using the development sample and the 200-example Golden Evaluation Set.
+
+1. Open `AppleSupport_Customer_Support_Agent_FINAL_UPDATED.ipynb` in Google Colab.
+2. Load the Customer Support on Twitter dataset.
+3. Run the dataset preparation and AppleSupport filtering cells.
+4. Run the intent-label preparation and classification cells.
+5. Run the evaluation cells for the 200-example Golden Evaluation Set.
+
+The main classification results are:
+
+| Model | Accuracy | Macro F1 |
+|---|---:|---:|
+| Majority Baseline | 22.5% | 2.8% |
+| TF-IDF + Logistic Regression | 55.0% | 0.48 |
+| Sentence Embeddings + Logistic Regression | **57.5%** | **0.54** |
+
+The notebook uses a 20,000-example development sample rather than processing the full dataset, as allowed by the assignment.
+
+Gemini-based response generation and LLM judging are optional evaluation components and require a Gemini API key. They are not required to reproduce the headline classification results.
+
 ### Setup
 
 The notebook is designed to run in **Google Colab**.
@@ -284,9 +348,6 @@ Required Python packages include:
 A Gemini API key is required only for the Gemini-based generation and judging experiments.
 
 The API key should be provided through the Colab Secrets mechanism rather than hard-coded in the notebook.
-
----
-
 ## Project Structure
 
 ```text
