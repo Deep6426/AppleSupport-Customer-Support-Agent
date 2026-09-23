@@ -348,13 +348,14 @@ Required Python packages include:
 A Gemini API key is required only for the Gemini-based generation and judging experiments.
 
 The API key should be provided through the Colab Secrets mechanism rather than hard-coded in the notebook.
-## Project Structure
 ## References
 
 - **Customer Support on Twitter dataset:** Kaggle — thoughtvector/customer-support-on-twitter
 - **Sentence Transformers:** `all-MiniLM-L6-v2`
 - **Google Gemini API:** Google GenAI API used for response generation and LLM-based evaluation
 - **Scikit-learn:** Logistic Regression, TF-IDF, evaluation metrics, and confusion matrix
+
+## Project Structure
 
 ```text
 AppleSupport-Customer-Support-Agent/
